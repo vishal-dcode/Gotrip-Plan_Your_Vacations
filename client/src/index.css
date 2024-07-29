@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ff-display: 'helvetica now display';
+  --ff-body: 'helvetica now display';
+
+  --clr-primary-400: #0350e4;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--ff-body);
+}
+
+.main-content {
+  margin-top: 5rem; /* Adjust based on header height */
+}
+
