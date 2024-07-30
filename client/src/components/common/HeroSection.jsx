@@ -7,7 +7,7 @@ const styles = {
   },
   text: 'text-5xl md:text-7xl lg:text-9xl xl:text-[10rem] text-black',
   img: 'h-10 md:h-16 lg:h-24 xl:h-28 w-full rounded-full object-cover',
-  container: 'flex items-center justify-center gap-8',
+  container: 'flex items-center justify-center gap-2 md:gap-8',
   sectionBase:
     'border border-x-0 border-t-0 border-black leading-[1] px-5 sm:px-16 md:px-20 lg:px-24 py-14 md:py-24 lg:py-28 text-white font-bold grid place-items-center gap-5'
 };

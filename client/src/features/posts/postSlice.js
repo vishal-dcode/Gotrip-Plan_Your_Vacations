@@ -3,8 +3,9 @@ import { fetchAllPosts, createPosts, deletePosts, updatePosts, fetchPostById } f
 
 const initialState = {
   posts: [],
+  status: 'idle',
   currentPost: null,
-  status: 'idle'
+  currentPostStatus: 'idle'
 };
 
 export const fetchAllPostsAsync = createAsyncThunk('posts/fetchAllPosts', async () => {

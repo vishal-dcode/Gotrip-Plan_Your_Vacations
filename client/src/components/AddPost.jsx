@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 import { AiOutlineFileAdd } from 'react-icons/ai';
 import { useDispatch } from 'react-redux';
-import { createPostsAsync } from '../features/posts/postSlice';
-import { compressImage } from '../utils/imgCompression.js';
 
-export default function AddTrip() {
+import { compressImage } from '../utils/imageCompression.js';
+import { createPostsAsync } from '../features/posts/postSlice.js';
+
+export default function AddPost() {
   const dispatch = useDispatch();
+  const [tagInput, setTagInput] = useState('');
   const [postData, setPostData] = useState({
     username: '',
     title: '',
@@ -14,7 +16,6 @@ export default function AddTrip() {
     thumbnail: '',
     createdAt: ''
   });
-  const [tagInput, setTagInput] = useState('');
 
   const isFormValid = useCallback(() => {
     return (
@@ -77,7 +78,7 @@ export default function AddTrip() {
   }, []);
 
   return (
-    <section className="py-10 px-5 xl:px-10 xl:py-20">
+    <section className="py-10 px-5 max-sm:p-0 max-sm:pt-10 xl:px-10 xl:py-20">
       <div className="flex flex-col items-center text-center">
         <h2 className="text-3xl font-bold pb-1">Create Your Trip</h2>
         <p className="text-sm text-neutral-800 font-normal">Add your dream destinations</p>
@@ -120,10 +121,19 @@ export default function AddTrip() {
         <div className="relative pb-3">
           <div className="flex flex-wrap items-center border border-black rounded-2xl px-5 py-4">
             {postData.tags.map((tag, index) => (
-              <span key={index} className="bg-gray-200 px-3 py-1 rounded-full mr-2 text-sm">
+              <span
+                key={index}
+                className="border border-black bg-neutral-200 px-3 py-1 rounded-full mr-2 text-sm flex items-center">
                 {tag}
-                <button onClick={() => removeTag(tag)} className="ml-2 text-red-500">
-                  ×
+                <button onClick={() => removeTag(tag)} className="ml-2">
+                  <svg width="8" height="8" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M54.1442 6.14849C55.5504 4.74229 55.5504 2.46099 54.1442 1.05469C52.738 -0.351612 50.4568 -0.351513 49.0505 1.05469L27.6014 22.5077L6.15245 1.05869C4.74625 -0.347513 2.46495 -0.347513 1.05865 1.05869C-0.34755 2.46099 -0.34755 4.74229 1.05865 6.14849L22.5076 27.5975L1.05465 49.0545C-0.35155 50.4568 -0.35155 52.7381 1.05465 54.1443C2.46085 55.5505 4.74215 55.5505 6.14445 54.1443L27.6014 32.6913L49.0545 54.1443C50.4607 55.5505 52.7419 55.5505 54.1482 54.1443C55.5545 52.7381 55.5544 50.4607 54.1482 49.0545L32.6912 27.5975L54.1442 6.14849Z"
+                      fill="red"
+                    />
+                  </svg>
                 </button>
               </span>
             ))}
@@ -163,8 +173,15 @@ export default function AddTrip() {
                 <img src={postData.thumbnail} alt="Thumbnail Preview" className="w-full h-full object-cover" />
                 <div
                   onClick={() => setPostData((prev) => ({ ...prev, thumbnail: '' }))}
-                  className="absolute top-1 right-1 text-white rounded-full h-6 w-6 grid place-items-center mix-blend-difference bg-red-500">
-                  X
+                  className="absolute top-1 right-1 text-white rounded-full h-6 w-6 grid place-items-center bg-red-500 mix-blend-darken">
+                  <svg width="10" height="10" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M54.1442 6.14849C55.5504 4.74229 55.5504 2.46099 54.1442 1.05469C52.738 -0.351612 50.4568 -0.351513 49.0505 1.05469L27.6014 22.5077L6.15245 1.05869C4.74625 -0.347513 2.46495 -0.347513 1.05865 1.05869C-0.34755 2.46099 -0.34755 4.74229 1.05865 6.14849L22.5076 27.5975L1.05465 49.0545C-0.35155 50.4568 -0.35155 52.7381 1.05465 54.1443C2.46085 55.5505 4.74215 55.5505 6.14445 54.1443L27.6014 32.6913L49.0545 54.1443C50.4607 55.5505 52.7419 55.5505 54.1482 54.1443C55.5545 52.7381 55.5544 50.4607 54.1482 49.0545L32.6912 27.5975L54.1442 6.14849Z"
+                      fill="white"
+                    />
+                  </svg>
                 </div>
               </div>
             ) : (
@@ -192,7 +209,7 @@ export default function AddTrip() {
           <button
             type="reset"
             onClick={clearForm}
-            className="flex-[1] bg-black text-white rounded-2xl px-5 py-4 block w-full">
+            className="flex-[1] bg-black text-white rounded-2xl px-5 py-4 font-medium block w-full">
             CLEAR
           </button>
           <button
@@ -200,7 +217,7 @@ export default function AddTrip() {
             disabled={!isFormValid()}
             className={`flex-[2] ${
               isFormValid() ? 'bg-primary-400' : 'bg-gray-400'
-            }  text-white rounded-2xl px-5 py-4 block w-full`}>
+            }  text-white rounded-2xl font-medium px-5 py-4 block w-full`}>
             SUBMIT
           </button>
         </div>

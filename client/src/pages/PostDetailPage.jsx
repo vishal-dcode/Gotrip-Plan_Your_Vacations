@@ -1,27 +1,26 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchPostByIdAsync, selectCurrentPost } from '../features/posts/postSlice';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import PageNotFound from '../components/PageNotFound.jsx';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+import PageNotFound from './PageNotFound.jsx';
+import { fetchPostByIdAsync, selectCurrentPost } from '../features/posts/postSlice.js';
 
 const fallbackImages = [
   'https://via.placeholder.com/1280x720?text=Fallback+Image+1',
   'https://via.placeholder.com/1280x720?text=Fallback+Image+2',
   'https://via.placeholder.com/1280x720?text=Fallback+Image+3'
 ];
-
 const imageGenerators = [
   (title) => `https://picsum.photos/seed/${encodeURIComponent(title)}/1280/720`,
   (title) => `https://picsum.photos/seed/${encodeURIComponent(title)}-hd/1280/720`,
   (title) => `https://picsum.photos/seed/${encodeURIComponent(title)}-4k/1280/720`
 ];
-
 const commentsSection = [
   {
     image: 'https://i.pinimg.com/564x/ef/b5/aa/efb5aa768e149f5d4c04e66a1e9810ab.jpg',
@@ -81,16 +80,18 @@ const commentsSection = [
   }
 ];
 export default function TripDetails() {
-  const dispatch = useDispatch();
   const params = useParams();
-  const currentPost = useSelector(selectCurrentPost);
+  const dispatch = useDispatch();
   const [images, setImages] = useState([]);
   const [mainImage, setMainImage] = useState('');
+  const currentPost = useSelector(selectCurrentPost); // ? select post by id
 
+  // ? get post by id
   useEffect(() => {
     dispatch(fetchPostByIdAsync(params.id));
   }, [dispatch, params]);
 
+  // ? generate images
   useEffect(() => {
     if (currentPost) {
       const newImages = imageGenerators.map((generator) => generator(currentPost.title));
@@ -98,7 +99,7 @@ export default function TripDetails() {
       setMainImage(currentPost.thumbnail);
     }
   }, [currentPost]);
-
+  // ? generate images
   const handleImageError = (index) => {
     setImages((prev) => {
       const newImages = [...prev];
@@ -106,7 +107,7 @@ export default function TripDetails() {
       return newImages;
     });
   };
-
+  // ? generate images
   const swapImage = (index) => {
     setMainImage(images[index]);
     setImages((prev) => {
@@ -167,6 +168,7 @@ export default function TripDetails() {
             </p>
           </div>
 
+          {/*// ? Comments */}
           <div className="relative mt-8 w-full">
             <h3 className="text-2xl font-bold mb-4">Comments</h3>
 

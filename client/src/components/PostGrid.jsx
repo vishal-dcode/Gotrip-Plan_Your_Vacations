@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { RiBrush2Fill } from 'react-icons/ri';
+import { BsFillTrash2Fill } from 'react-icons/bs';
+import { IoHeart } from 'react-icons/io5';
+
+import Loading from './common/Loading.jsx';
+import UpdatePostModal from './modals/UpdatePostModal.jsx';
 import {
   fetchAllPostsAsync,
   fetchPostByIdAsync,
@@ -7,17 +14,10 @@ import {
   selectStatus,
   deletePostsAsync
 } from '../features/posts/postSlice.js';
-import Loading from './Loading.jsx';
-import { RiBrush2Fill } from 'react-icons/ri';
-import { BsFillTrash2Fill } from 'react-icons/bs';
-import { IoHeart } from 'react-icons/io5';
-import EditTripModal from './EditTripModal.jsx';
-import { Link } from 'react-router-dom';
 
-export default function TripList() {
+export default function PostGrid() {
   const dispatch = useDispatch();
   const [showEditModal, setShowEditModal] = useState(false);
-  // const postById = useSelector(selectPostById);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
   const posts = useSelector(selectPosts);
@@ -85,17 +85,17 @@ export default function TripList() {
                   <p className="line-clamp-2 text-neutral-600 text-sm font-normal">{trip.description}</p>
                 </div>
               </Link>
-              <LikeEdit trip={trip} handleEdit={handleEdit} handleDelete={handleDelete} />
+              <LikeEditDelete trip={trip} handleEdit={handleEdit} handleDelete={handleDelete} />
             </div>
           ))}
         </>
       )}
-      {showEditModal && <EditTripModal setShowEditModal={setShowEditModal} postId={selectedPostId} />}
+      {showEditModal && <UpdatePostModal setShowEditModal={setShowEditModal} postId={selectedPostId} />}
     </section>
   );
 }
 
-const LikeEdit = ({ trip, handleEdit, handleDelete }) => {
+const LikeEditDelete = ({ trip, handleEdit, handleDelete }) => {
   return (
     <div className="border border-b-0 border-x-0 border-t-black p-3 flex items-center justify-between flex-end">
       <div className="flex h-9 items-center rounded-full bg-red-500 hover:bg-red-600 cursor-pointer">

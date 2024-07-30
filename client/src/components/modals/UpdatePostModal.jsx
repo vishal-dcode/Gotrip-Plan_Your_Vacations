@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updatePostsAsync, selectCurrentPost } from '../features/posts/postSlice';
 import { AiOutlineFileAdd } from 'react-icons/ai';
-import { IoClose } from 'react-icons/io5';
-import { compressImage } from '../utils/imgCompression.js';
 
-const EditTripModal = ({ setShowEditModal, postId }) => {
+import { compressImage } from '../../utils/imageCompression.js';
+import { updatePostsAsync, selectCurrentPost } from '../../features/posts/postSlice.js';
+
+export default function UpdatePostModal({ setShowEditModal, postId }) {
   const dispatch = useDispatch();
   const currentPost = useSelector(selectCurrentPost);
-  const [postData, setPostData] = useState({ title: '', description: '', tags: [], thumbnail: '' });
 
   const [tagInput, setTagInput] = useState('');
+  const [postData, setPostData] = useState({ title: '', description: '', tags: [], thumbnail: '' });
 
   const isFormValid = useCallback(() => {
     return (
@@ -20,7 +20,6 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
       postData.tags.length > 0
     );
   }, [postData.title, postData.description, postData.thumbnail, postData.tags]);
-
   useEffect(() => {
     if (currentPost) {
       setPostData({
@@ -31,12 +30,10 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
       });
     }
   }, [currentPost]);
-
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setPostData((prev) => ({ ...prev, [name]: value }));
   }, []);
-
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -52,7 +49,6 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
   const handleReset = useCallback(() => {
     setPostData({ title: '', description: '', tags: [], thumbnail: '' });
   }, []);
-
   const handleThumbnailChange = useCallback(async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -64,7 +60,6 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
       reader.readAsDataURL(compressedFile);
     }
   }, []);
-
   const addTag = useCallback(() => {
     const trimmedTag = tagInput.trim();
     if (trimmedTag && !postData.tags.includes(trimmedTag) && postData.tags.length < 5) {
@@ -72,7 +67,6 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
       setTagInput('');
     }
   }, [tagInput, postData.tags]);
-
   const removeTag = useCallback((tagToRemove) => {
     setPostData((prev) => ({
       ...prev,
@@ -87,8 +81,15 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
           <h2 className="text-2xl font-bold">Edit Trip</h2>
           <div
             onClick={() => setShowEditModal(false)}
-            className="bg-red-400 text-2xl text-white p-1 w-fit rounded-full cursor-pointer hover:bg-red-500">
-            <IoClose />
+            className="bg-red-400 text-2xl text-white p-2.5 w-fit rounded-full border border-black cursor-pointer hover:bg-red-500">
+            <svg width="12" height="12" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M54.1442 6.14849C55.5504 4.74229 55.5504 2.46099 54.1442 1.05469C52.738 -0.351612 50.4568 -0.351513 49.0505 1.05469L27.6014 22.5077L6.15245 1.05869C4.74625 -0.347513 2.46495 -0.347513 1.05865 1.05869C-0.34755 2.46099 -0.34755 4.74229 1.05865 6.14849L22.5076 27.5975L1.05465 49.0545C-0.35155 50.4568 -0.35155 52.7381 1.05465 54.1443C2.46085 55.5505 4.74215 55.5505 6.14445 54.1443L27.6014 32.6913L49.0545 54.1443C50.4607 55.5505 52.7419 55.5505 54.1482 54.1443C55.5545 52.7381 55.5544 50.4607 54.1482 49.0545L32.6912 27.5975L54.1442 6.14849Z"
+                fill="black"
+              />
+            </svg>
           </div>
         </div>
 
@@ -114,10 +115,19 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
               <div className="relative pb-3">
                 <div className="flex flex-wrap items-center border-bottom px-5 py-4">
                   {postData.tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-200 px-2 py-1 rounded-full mr-2 text-sm">
+                    <span
+                      key={index}
+                      className="border border-black bg-neutral-200 px-3 py-1 rounded-full mr-2 text-sm flex items-center">
                       {tag}
-                      <button onClick={() => removeTag(tag)} className="ml-2 text-red-500">
-                        ×
+                      <button onClick={() => removeTag(tag)} className="ml-2">
+                        <svg width="8" height="8" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M54.1442 6.14849C55.5504 4.74229 55.5504 2.46099 54.1442 1.05469C52.738 -0.351612 50.4568 -0.351513 49.0505 1.05469L27.6014 22.5077L6.15245 1.05869C4.74625 -0.347513 2.46495 -0.347513 1.05865 1.05869C-0.34755 2.46099 -0.34755 4.74229 1.05865 6.14849L22.5076 27.5975L1.05465 49.0545C-0.35155 50.4568 -0.35155 52.7381 1.05465 54.1443C2.46085 55.5505 4.74215 55.5505 6.14445 54.1443L27.6014 32.6913L49.0545 54.1443C50.4607 55.5505 52.7419 55.5505 54.1482 54.1443C55.5545 52.7381 55.5544 50.4607 54.1482 49.0545L32.6912 27.5975L54.1442 6.14849Z"
+                            fill="red"
+                          />
+                        </svg>
                       </button>
                     </span>
                   ))}
@@ -158,8 +168,15 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
                       <img src={postData.thumbnail} alt="Thumbnail" className="w-full h-full object-cover" />
                       <div
                         onClick={() => setPostData((prev) => ({ ...prev, thumbnail: '' }))}
-                        className="absolute top-1 right-1 text-white rounded-full h-6 w-6 grid place-items-center mix-blend-difference bg-red-500">
-                        X
+                        className="absolute top-3 right-2 text-white rounded-full h-6 w-6 grid place-items-center mix-blend-difference bg-red-500">
+                        <svg width="12" height="12" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M54.1442 6.14849C55.5504 4.74229 55.5504 2.46099 54.1442 1.05469C52.738 -0.351612 50.4568 -0.351513 49.0505 1.05469L27.6014 22.5077L6.15245 1.05869C4.74625 -0.347513 2.46495 -0.347513 1.05865 1.05869C-0.34755 2.46099 -0.34755 4.74229 1.05865 6.14849L22.5076 27.5975L1.05465 49.0545C-0.35155 50.4568 -0.35155 52.7381 1.05465 54.1443C2.46085 55.5505 4.74215 55.5505 6.14445 54.1443L27.6014 32.6913L49.0545 54.1443C50.4607 55.5505 52.7419 55.5505 54.1482 54.1443C55.5545 52.7381 55.5544 50.4607 54.1482 49.0545L32.6912 27.5975L54.1442 6.14849Z"
+                            fill="white"
+                          />
+                        </svg>
                       </div>
                     </div>
                   ) : (
@@ -200,6 +217,4 @@ const EditTripModal = ({ setShowEditModal, postId }) => {
       </div>
     </div>
   );
-};
-
-export default EditTripModal;
+}
