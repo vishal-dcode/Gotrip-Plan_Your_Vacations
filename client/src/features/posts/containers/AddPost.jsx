@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react';
 import { AiOutlineFileAdd } from 'react-icons/ai';
 import { useDispatch } from 'react-redux';
 
-import { compressImage } from '../utils/imageCompression.js';
-import { createPostsAsync } from '../features/posts/postSlice.js';
+import { compressImage } from '../../../utils/imageCompression.js';
+import { createPostsAsync } from '../postSlice.js';
 
 export default function AddPost() {
   const dispatch = useDispatch();
@@ -17,15 +17,14 @@ export default function AddPost() {
     createdAt: ''
   });
 
-  const isFormValid = useCallback(() => {
+  const isFormValid = () => {
     return (
       postData.title.trim() !== '' &&
       postData.description.trim() !== '' &&
       postData.thumbnail.trim() !== '' &&
       postData.tags.length > 0
     );
-  }, [postData.title, postData.description, postData.thumbnail, postData.tags]);
-
+  };
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setPostData((prev) => ({ ...prev, [name]: value }));

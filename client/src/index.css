@@ -151,3 +151,15 @@
   margin-top: 5rem; /* Adjust based on header height */
 }
 
+.tooltip:hover::after {
+  content: 'Checking this box will reduce the number of times you arre asked to sign in. To keep your account secure, use this option only on your personal devices.';
+  position: absolute;
+  z-index: 9999;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  color: #fff;
+  background-color: #141414;
+  width: 32ch;
+}
+

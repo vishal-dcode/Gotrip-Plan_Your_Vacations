@@ -1,44 +1,32 @@
-import { useState, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import Header from '../components/common/Header.jsx';
 import Footer from '../components/common/Footer.jsx';
 import HomePage from '../pages/HomePage.jsx';
 import TripDetails from '../pages/PostDetailPage.jsx';
 import TermsAndConditions from '../pages/TermsAndConditions.jsx';
+import PageNotFound from '../pages/PageNotFound.jsx';
+import Signout from '../features/auth/containers/Signout.jsx';
 
 function App() {
-  const controls = useAnimation();
-  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
-  //? Framer Motion
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  //? Framer Motion
-  useEffect(() => {
-    controls.start({
-      marginTop: scrolled ? '0rem' : '92px',
-      transition: { duration: 0.3, ease: 'easeInOut' }
-    });
-  }, [scrolled, controls]);
+  const isAuthPage = location.pathname === '/auth';
 
   return (
-    <motion.div animate={controls}>
-      <Header />
+    <div>
+      {!isAuthPage && <Header />}
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/location-detail/:id" element={<TripDetails />} />
+        <Route path="/signout" element={<Signout />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
-      <Footer />
-    </motion.div>
+
+      {!isAuthPage && <Footer />}
+    </div>
   );
 }
 

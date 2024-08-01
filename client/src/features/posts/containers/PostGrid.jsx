@@ -5,15 +5,9 @@ import { RiBrush2Fill } from 'react-icons/ri';
 import { BsFillTrash2Fill } from 'react-icons/bs';
 import { IoHeart } from 'react-icons/io5';
 
-import Loading from './common/Loading.jsx';
-import UpdatePostModal from './modals/UpdatePostModal.jsx';
-import {
-  fetchAllPostsAsync,
-  fetchPostByIdAsync,
-  selectPosts,
-  selectStatus,
-  deletePostsAsync
-} from '../features/posts/postSlice.js';
+import Loading from '../../../components/common/Loading.jsx';
+import UpdatePostModal from '../../../components/modals/UpdatePostModal.jsx';
+import { fetchAllPostsAsync, fetchPostByIdAsync, selectPosts, selectStatus, deletePostsAsync } from '../postSlice.js';
 
 export default function PostGrid() {
   const dispatch = useDispatch();

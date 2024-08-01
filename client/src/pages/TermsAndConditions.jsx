@@ -51,7 +51,7 @@ const termsData = [
 
 const TermsAndConditions = () => {
   return (
-    <div className="bg-neutral-100 min-h-screen">
+    <main className="bg-neutral-100 min-h-screen mt-20">
       <div className="container mx-auto px-4 py-16">
         <h1 className="text-4xl font-bold text-center mb-12 text-neutral-800">Terms and Conditions</h1>
 
@@ -75,7 +75,7 @@ const TermsAndConditions = () => {
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

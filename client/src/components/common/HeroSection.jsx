@@ -2,8 +2,7 @@ const styles = {
   section: {
     width: '-webkit-fill-available',
     backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundColor: '#ffffff'
+    backgroundPosition: 'center'
   },
   text: 'text-5xl md:text-7xl lg:text-9xl xl:text-[10rem] text-black',
   img: 'h-10 md:h-16 lg:h-24 xl:h-28 w-full rounded-full object-cover',

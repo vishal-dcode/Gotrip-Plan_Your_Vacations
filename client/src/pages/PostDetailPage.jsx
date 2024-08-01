@@ -8,8 +8,9 @@ import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+import { fetchPostByIdAsync, selectCurrentPost, selectCurrentPostStatus } from '../features/posts/postSlice.js';
+import Loading from '../components/common/Loading.jsx';
 import PageNotFound from './PageNotFound.jsx';
-import { fetchPostByIdAsync, selectCurrentPost } from '../features/posts/postSlice.js';
 
 const fallbackImages = [
   'https://via.placeholder.com/1280x720?text=Fallback+Image+1',
@@ -79,21 +80,23 @@ const commentsSection = [
       'Your post was so inspiring! I just booked a trip to the Canadian Rockies. Any must-see spots you recommend?'
   }
 ];
-export default function TripDetails() {
+export default function PostDetailPage() {
   const params = useParams();
   const dispatch = useDispatch();
   const [images, setImages] = useState([]);
   const [mainImage, setMainImage] = useState('');
-  const currentPost = useSelector(selectCurrentPost); // ? select post by id
+  const currentPost = useSelector(selectCurrentPost);
+  const currentPostStatus = useSelector(selectCurrentPostStatus);
 
-  // ? get post by id
   useEffect(() => {
-    dispatch(fetchPostByIdAsync(params.id));
-  }, [dispatch, params]);
+    if (params.id && (!currentPost || currentPost._id !== params.id)) {
+      dispatch(fetchPostByIdAsync(params.id));
+    }
+  }, [dispatch, params.id, currentPost]);
 
   // ? generate images
   useEffect(() => {
-    if (currentPost) {
+    if (currentPost && currentPost.title) {
       const newImages = imageGenerators.map((generator) => generator(currentPost.title));
       setImages([currentPost.thumbnail, ...newImages]);
       setMainImage(currentPost.thumbnail);
@@ -117,10 +120,11 @@ export default function TripDetails() {
     });
   };
 
+  if (currentPostStatus === 'loading' && !currentPost) return <Loading />;
   if (!currentPost) return <PageNotFound />;
 
   return (
-    <main className="px-5 py-10 md:px-10 md:py-20 xl:p-20 flex items-center justify-center">
+    <main className="px-5 mt-24 py-10 md:px-10 md:py-20 xl:p-20 flex items-center justify-center">
       <section className="lg:max-w-[950px] xl:max-w-[1200px]">
         <div className="relative flex flex-col lg:flex-row gap-4 mb-5 lg:mb-8 border border-black rounded-2xl">
           <motion.div className="flex-grow" layout transition={{ duration: 0.5 }}>
@@ -168,7 +172,7 @@ export default function TripDetails() {
             </p>
           </div>
 
-          {/*// ? Comments */}
+          {/* Comments */}
           <div className="relative mt-8 w-full">
             <h3 className="text-2xl font-bold mb-4">Comments</h3>
 

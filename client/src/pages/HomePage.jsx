@@ -3,15 +3,15 @@ import { useState } from 'react';
 import HeroSection from '../components/common/HeroSection.jsx';
 import Pagination from '../components/common/Pagination.jsx';
 import Search from '../components/common/Search.jsx';
-import PostGrid from '../components/PostGrid.jsx';
-import AddPost from '../components/AddPost.jsx';
+import PostGrid from '../features/posts/containers/PostGrid.jsx';
+import AddPost from '../features/posts/containers/AddPost.jsx';
 import AddPostModal from '../components/modals/AddPostModal.jsx';
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div>
+    <main className="mt-24">
       <HeroSection />
       <main
         className="relative grid max-md:block"
@@ -61,6 +61,6 @@ export default function HomePage() {
 
       {/* //! AddPost Modal */}
       <AddPostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </div>
+    </main>
   );
 }

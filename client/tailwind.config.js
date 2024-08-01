@@ -34,6 +34,18 @@ export default {
           borderBottom: '0',
           borderLeft: '0',
           borderRight: '0'
+        },
+        '.border-left': {
+          border: '1px solid black',
+          borderBottom: '0',
+          borderTop: '0',
+          borderRight: '0'
+        },
+        '.border-right': {
+          border: '1px solid black',
+          borderBottom: '0',
+          borderLeft: '0',
+          borderTop: '0'
         }
       });
     }

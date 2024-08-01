@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import AddPost from '../AddPost.jsx';
+import AddPost from '../../features/posts/containers/AddPost.jsx';
 
 export default function AddPostModal({ isOpen, onClose }) {
   // ? Framer Motion

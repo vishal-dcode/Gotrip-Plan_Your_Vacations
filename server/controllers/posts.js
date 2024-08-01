@@ -1,8 +1,8 @@
-import PostMessage from '../models/postMessage.js';
+import postModel from '../models/post.js';
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await PostMessage.find();
+    const posts = await postModel.find();
     res.status(200).json(posts);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -11,7 +11,7 @@ export const getPosts = async (req, res) => {
 
 export const createPosts = async (req, res) => {
   const body = req.body;
-  const newPost = new PostMessage(body);
+  const newPost = new postModel(body);
   try {
     await newPost.save();
     res.status(201).json(newPost);
@@ -24,7 +24,7 @@ export const deletePosts = async (req, res) => {
   const { id } = req.params;
   try {
     //! Find the post by ID and delete it
-    const deletedPost = await PostMessage.findByIdAndDelete(id);
+    const deletedPost = await postModel.findByIdAndDelete(id);
     if (!deletedPost) {
       return res.status(404).json({ message: 'Post not found' });
     }
@@ -38,7 +38,7 @@ export const updatePosts = async (req, res) => {
   const id = req.params.id;
   try {
     //! Find the post by ID and update it with the new data
-    const updatedPost = await PostMessage.findByIdAndUpdate(id, req.body, { new: true });
+    const updatedPost = await postModel.findByIdAndUpdate(id, req.body, { new: true });
     res.status(200).json(updatedPost);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -48,7 +48,7 @@ export const updatePosts = async (req, res) => {
 export const fetchPostById = async (req, res) => {
   const { id } = req.params;
   try {
-    const post = await PostMessage.findById(id);
+    const post = await postModel.findById(id);
     res.status(200).json(post);
   } catch (error) {
     res.status(404).json({ message: error.message });

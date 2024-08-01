@@ -54,10 +54,10 @@ export const postSlice = createSlice({
         state.posts.unshift(action.payload); //? use "unshift" instead of "push" to add new post to the beginning of the array
       })
       .addCase(fetchPostByIdAsync.pending, (state) => {
-        state.status = 'loading';
+        state.currentPostStatus = 'loading';
       })
       .addCase(fetchPostByIdAsync.fulfilled, (state, action) => {
-        state.status = 'idle';
+        state.currentPostStatus = 'idle';
         state.currentPost = action.payload;
       })
       .addCase(updatePostsAsync.pending, (state) => {
@@ -82,6 +82,7 @@ export const postSlice = createSlice({
 export const selectPosts = (state) => state.posts.posts;
 export const selectStatus = (state) => state.posts.status;
 export const selectCurrentPost = (state) => state.posts.currentPost;
+export const selectCurrentPostStatus = (state) => state.posts.currentPostStatus;
 
 export default postSlice.reducer;
 
