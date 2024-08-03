@@ -25,10 +25,17 @@ app.get('/', (req, res) => {
 const MONGODB_URL = process.env.MONGODB_URL;
 const PORT = process.env.PORT || 5000;
 
-mongoose
-  .connect(MONGODB_URL)
-  .then(() => {
-    console.log('Connected to MongoDB successfully');
-    app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}/posts`));
-  })
-  .catch((err) => console.log('Mongoose connection error: ', err));
+const connectWithRetry = () => {
+  mongoose
+    .connect(MONGODB_URL)
+    .then(() => {
+      console.log('MongoDB is connected');
+      app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}`));
+    })
+    .catch((err) => {
+      console.log('MongoDB connection unsuccessful, retry after 5 seconds.');
+      setTimeout(connectWithRetry, 5000);
+    });
+};
+
+connectWithRetry();
