@@ -32,13 +32,13 @@ const countries = [
   'Morocco'
 ];
 
-export default function Search({ onSearch }) {
+export default function Search({ handleSearch }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCountries, setSelectedCountries] = useState([]);
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    onSearch({ searchTerm, selectedCountries });
+    handleSearch({ searchTerm, selectedCountries });
   }, [searchTerm, selectedCountries]);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function Search({ onSearch }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch({ searchTerm, selectedCountries });
+    handleSearch({ searchTerm, selectedCountries });
   };
 
   return (

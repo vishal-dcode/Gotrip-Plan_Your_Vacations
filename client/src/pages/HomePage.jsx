@@ -65,7 +65,7 @@ export default function HomePage() {
               </p>
             </div>
             {/* //! Search */}
-            <Search onSearch={handleSearch} />
+            <Search handleSearch={handleSearch} />
             {/* //! PostGrid */}
             <PostGrid currentPosts={currentPosts} />
           </div>

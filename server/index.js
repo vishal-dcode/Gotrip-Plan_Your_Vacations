@@ -18,6 +18,10 @@ app.use(cors());
 app.use('/posts', postRoutes);
 app.use('/auth', authRoutes);
 
+app.get('/', (req, res) => {
+  res.send('GOTRIP SERVER RUNNING');
+});
+
 const MONGODB_URL = process.env.MONGODB_URL;
 const PORT = process.env.PORT || 5000;
 
