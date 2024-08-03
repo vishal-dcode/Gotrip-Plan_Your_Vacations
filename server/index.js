@@ -25,10 +25,18 @@ app.get('/', (req, res) => {
 const MONGODB_URL = process.env.MONGODB_URL;
 const PORT = process.env.PORT || 5000;
 
+if (!MONGODB_URL) {
+  console.error('Missing MONGODB_URL environment variable');
+  process.exit(1); // Exit the process with a failure code
+}
+
 mongoose
-  .connect(MONGODB_URL)
+  .connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB successfully');
-    app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}/posts`));
+    app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}/`));
   })
-  .catch((err) => console.log('Mongoose connection error: ', err));
+  .catch((err) => {
+    console.error('Mongoose connection error:', err);
+    process.exit(1); // Exit the process with a failure code
+  });
