@@ -31,7 +31,7 @@ if (!MONGODB_URL) {
 }
 
 mongoose
-  .connect(MONGODB_URL, { useNewUrlParser: true })
+  .connect(MONGODB_URL)
   .then(() => {
     console.log('Connected to MongoDB successfully');
     app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}/`));
