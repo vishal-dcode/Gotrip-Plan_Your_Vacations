@@ -137,7 +137,7 @@
   --ff-display: 'HelveticaNowDisplay';
   --ff-body: 'HelveticaNowDisplay';
 
-  --clr-primary-400: #0350e4;
+  --clr-primary-400: rgb(3, 80, 228);
 }
 
 * {

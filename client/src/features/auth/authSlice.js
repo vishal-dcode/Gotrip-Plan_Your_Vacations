@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { loginWithGoogle } from './authAPI';
 
 const initialState = {
   user: null,
@@ -10,6 +11,14 @@ export const authAsync = createAsyncThunk('auth/authAsync', async ({ result, tok
   try {
     const profile = { result, token };
     localStorage.setItem('profile', JSON.stringify(profile));
+
+    // Send user data to the server
+    await loginWithGoogle({
+      email: result.email,
+      name: result.name,
+      picture: result.picture
+    });
+
     return profile;
   } catch (error) {
     return rejectWithValue(error.message);

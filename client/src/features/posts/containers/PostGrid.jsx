@@ -3,21 +3,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { RiBrush2Fill } from 'react-icons/ri';
 import { BsFillTrash2Fill } from 'react-icons/bs';
-import { IoHeart } from 'react-icons/io5';
 
 import Loading from '../../../components/common/Loading.jsx';
 import UpdatePostModal from '../../../components/modals/UpdatePostModal.jsx';
 import { fetchAllPostsAsync, fetchPostByIdAsync, selectPosts, selectStatus, deletePostsAsync } from '../postSlice.js';
+import { selectUser } from '../../auth/authSlice.js';
 
-export default function PostGrid() {
+export default function PostGrid({ currentPosts }) {
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
   const posts = useSelector(selectPosts);
   const postStatus = useSelector(selectStatus);
-
-  // console.log(posts);
 
   useEffect(() => {
     dispatch(fetchAllPostsAsync());
@@ -45,12 +44,12 @@ export default function PostGrid() {
         </div>
       ) : (
         <>
-          {posts.map((trip) => (
+          {currentPosts.map((trip) => (
             <div
               key={trip._id}
-              className="relative border border-black rounded-2xl min-w-[300px] flex flex-col justify-between">
-              <Link to={`/location-detail/${trip._id}`} className="block">
-                <div className="p-3 flex items-center justify-between">
+              className="relative border border-black rounded-2xl min-w-[300px] flex flex-col justify-between overflow-hidden">
+              <div className="block">
+                <div className="p-4 py-3 flex items-center justify-between">
                   <div className="flex gap-3 items-center justify-between">
                     <img
                       className="h-10 w-10 rounded-full object-cover border border-black"
@@ -62,6 +61,9 @@ export default function PostGrid() {
                       <p className="text-neutral-500 text-xs">{trip.createdAt?.split('T')[0] || 'No date available'}</p>
                     </div>
                   </div>
+                  {user && user.result.email === 'vishalvish4225@gmail.com' && (
+                    <LikeEditDelete trip={trip} handleEdit={handleEdit} handleDelete={handleDelete} />
+                  )}
                 </div>
                 <figure className="border border-y-black border-x-0 aspect-[6/4] overflow-hidden">
                   <img
@@ -70,16 +72,47 @@ export default function PostGrid() {
                     alt="Thumbnail"
                   />
                 </figure>
-                <div className="px-3 py-5">
+                <div className="px-4 py-5">
                   <div className="flex gap-2 items-center text-xs uppercase font-medium">
                     TAGS:
-                    <span className="text-neutral-500">{trip.tags.join(' / ')}</span>
+                    <span className="line-clamp-1 text-neutral-500">{trip.tags.join(' \\ ')}</span>
                   </div>
                   <h3 className="text-lg font-semibold py-1">{trip.title}</h3>
-                  <p className="line-clamp-2 text-neutral-600 text-sm font-normal">{trip.description}</p>
+                  <p className="line-clamp-3 text-neutral-600 text-sm font-normal">{trip.description}</p>
+                </div>
+              </div>
+              <Link to={`/location-detail/${trip._id}`} className="flex items-center justify-between px-4 pb-4">
+                {trip.comments?.length < 1 ? (
+                  <span className="rounded-full whitespace-nowrap border border-black text-black font-medium text-sm px-5 py-3 text-center">
+                    No Comments
+                  </span>
+                ) : (
+                  ''
+                )}
+                <div className="flex">
+                  {trip.comments
+                    ?.slice(-4)
+                    .reverse()
+                    .map((comment, index) => (
+                      <div
+                        key={comment._id || index}
+                        className="h-10 w-10 overflow-hidden rounded-full border border-black"
+                        style={{
+                          zIndex: 4 + index,
+                          transform: index > 0 ? `translateX(-${index}rem)` : 'none'
+                        }}>
+                        <img
+                          src={comment.profilePic || 'https://via.placeholder.com/150'}
+                          alt={`Commentor ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                </div>
+                <div className="rounded-full whitespace-nowrap bg-primary-400 hover:bg-primary-400 text-white font-medium text-sm px-5 py-3 text-center">
+                  Read more
                 </div>
               </Link>
-              <LikeEditDelete trip={trip} handleEdit={handleEdit} handleDelete={handleDelete} />
             </div>
           ))}
         </>
@@ -91,24 +124,16 @@ export default function PostGrid() {
 
 const LikeEditDelete = ({ trip, handleEdit, handleDelete }) => {
   return (
-    <div className="border border-b-0 border-x-0 border-t-black p-3 flex items-center justify-between flex-end">
-      <div className="flex h-9 items-center rounded-full bg-red-500 hover:bg-red-600 cursor-pointer">
-        <button className="grid place-items-center text-white pl-3">
-          <IoHeart />
-        </button>
-        <span className="bg-red-300 h-1 w-1 rounded-full mx-1.5"></span>
-        <span className="text-white pr-4 text-md font-bold">{trip.likeCount || 0}</span>
-      </div>
-
+    <div className="flex items-center justify-between flex-end">
       <div className="flex gap-1 items-center justify-center">
         <button
           onClick={() => handleEdit(trip._id)}
-          className="h-9 w-9 grid place-items-center bg-blue-500 hover:bg-blue-600 text-white rounded-full">
+          className="h-10 w-10 grid place-items-center border border-black hover:bg-blue-500 text-black rounded-full">
           <RiBrush2Fill />
         </button>
         <button
           onClick={() => handleDelete(trip._id)}
-          className="h-9 w-9 grid place-items-center bg-red-500 hover:bg-red-600 text-white rounded-full">
+          className="h-10 w-10 grid place-items-center border border-black hover:bg-red-500 text-black rounded-full">
           <BsFillTrash2Fill />
         </button>
       </div>

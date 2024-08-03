@@ -24,10 +24,10 @@ export default function Footer() {
   return (
     <footer className="border border-top">
       <section className="flex flex-col  justify-between gap-5 p-5 xl:pt-10">
-        <div className="flex gap-5 items-start justify-between max-sm:flex-col">
+        <div className="flex gap-10 items-start justify-between max-sm:flex-col">
           <img src={logo} alt="Logo" className="h-12 max-xl:mt-2" />
           <div className="mb-5 sm:text-right">
-            <h4 className="font-bold text-lg">About us</h4>
+            <h4 className="font-bold text-lg max-sm:hidden">About us</h4>
             <p className="max-w-[70ch]">
               At Gotrip, we believe that travel is not just about visiting new places, but about creating unforgettable
               memories and enriching lives. Our mission is to empower travelers to explore the world, share their
@@ -36,7 +36,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="">
-          <nav className="flex font-semibold items-center justify-between">
+          <nav className="flex font-medium items-center justify-between">
             <div className="flex gap-4">
               <Link to="/terms" className="hover:text-primary-400 whitespace-nowrap">
                 Terms and conditions
@@ -57,7 +57,7 @@ export default function Footer() {
           </nav>
         </div>
       </section>
-      <div className="bg-primary-400 text-sm text-white py-2 px-5 border-top">
+      <div className="text-center bg-primary-400 text-sm text-white py-2 px-5 border-top">
         <p>© {year} All Rights Reserved</p>
       </div>
     </footer>

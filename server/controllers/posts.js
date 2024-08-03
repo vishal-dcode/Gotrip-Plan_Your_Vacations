@@ -54,3 +54,32 @@ export const fetchPostById = async (req, res) => {
     res.status(404).json({ message: error.message });
   }
 };
+
+export const addCommentToPost = async (req, res) => {
+  const { id } = req.params;
+  const { text, username, profilePic } = req.body;
+
+  try {
+    const post = await postModel.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const newComment = {
+      text,
+      username,
+      profilePic,
+      createdAt: new Date()
+    };
+
+    post.comments.push(newComment);
+
+    const updatedPost = await post.save();
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error('Error in addCommentToPost:', error);
+    res.status(500).json({ message: 'Something went wrong', error: error.message });
+  }
+};

@@ -1,92 +1,84 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Link } from 'react-router-dom';
+import { createApi } from 'unsplash-js';
+import ImagePreviewModal from '../components/modals/ImagePreviewModal.jsx';
 
-import { fetchPostByIdAsync, selectCurrentPost, selectCurrentPostStatus } from '../features/posts/postSlice.js';
+import {
+  fetchPostByIdAsync,
+  selectCurrentPost,
+  selectCurrentPostStatus,
+  addCommentAsync
+} from '../features/posts/postSlice.js';
+import { selectUser } from '../features/auth/authSlice.js';
 import Loading from '../components/common/Loading.jsx';
 import PageNotFound from './PageNotFound.jsx';
 
-const fallbackImages = [
-  'https://via.placeholder.com/1280x720?text=Fallback+Image+1',
-  'https://via.placeholder.com/1280x720?text=Fallback+Image+2',
-  'https://via.placeholder.com/1280x720?text=Fallback+Image+3'
-];
-const imageGenerators = [
-  (title) => `https://picsum.photos/seed/${encodeURIComponent(title)}/1280/720`,
-  (title) => `https://picsum.photos/seed/${encodeURIComponent(title)}-hd/1280/720`,
-  (title) => `https://picsum.photos/seed/${encodeURIComponent(title)}-4k/1280/720`
-];
-const commentsSection = [
-  {
-    image: 'https://i.pinimg.com/564x/ef/b5/aa/efb5aa768e149f5d4c04e66a1e9810ab.jpg',
-    name: 'John Doe',
-    date: new Date().toLocaleDateString(),
-    comment:
-      "Great post! I really enjoyed reading this while relaxing on the beach in Hawaii. The insights you've shared are very valuable and applicable to my upcoming trip to Europe."
-  },
-  {
-    image: 'https://i.pinimg.com/564x/2e/64/41/2e64411b285cafdf75d33cd9605c3f44.jpg',
-    name: 'Jane Smith',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'I have a question about the third point you made while visiting the top of the Empire State Building. Could you elaborate on that a bit more as I plan my trip to the Statue of Liberty?'
-  },
-  {
-    image: 'https://i.pinimg.com/564x/c2/88/5b/c2885bb7d30c39a67dadc71a52d167fe.jpg',
-    name: 'Alex Johnson',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'This is exactly what I was looking for while taking in the breathtaking views of Yosemite. Thanks for sharing your expertise on this topic as I plan my next hiking trip to Zion National Park!'
-  },
-  {
-    image: 'https://i.pinimg.com/564x/15/7c/a4/157ca450b4763fdc7386c8bb56f5268e.jpg',
-    name: 'Emily Davis',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'I just got back from a trip to Italy, and your tips on local cuisine were spot on! I had the best pasta in Rome!'
-  },
-  {
-    image: 'https://i.pinimg.com/564x/df/fd/ab/dffdab51c07a00a62a0c13fd02aadbc8.jpg',
-    name: 'Michael Brown',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'Thanks for the great advice! I’m heading to Cancun next month, and your recommendations for activities are super helpful!'
-  },
-  {
-    image: 'https://i.pinimg.com/564x/b3/7c/ad/b37cad72e0c0a258d50de8f3fcc32c9d.jpg',
-    name: 'Sarah Wilson',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'I loved your post! It brought back memories of my backpacking trip through Thailand and Vietnam. Any tips for first-time travelers?'
-  },
-  {
-    image: 'https://i.pinimg.com/564x/f8/43/3e/f8433e97fd1ff7b8ed117131c93bac22.jpg',
-    name: 'David Lee',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'Awesome insights! I’m planning a road trip across the USA this summer. What’s your favorite stop along the way?'
-  },
-  {
-    image: 'https://i.pinimg.com/564x/8d/6e/2e/8d6e2e657db8fafaf2ef0e56821035d3.jpg',
-    name: 'Laura Green',
-    date: new Date().toLocaleDateString(),
-    comment:
-      'Your post was so inspiring! I just booked a trip to the Canadian Rockies. Any must-see spots you recommend?'
-  }
-];
+const unsplash = createApi({
+  accessKey: import.meta.env.VITE_UNSPLASH_ACCESS_KEY
+});
+
 export default function PostDetailPage() {
   const params = useParams();
   const dispatch = useDispatch();
-  const [images, setImages] = useState([]);
-  const [mainImage, setMainImage] = useState('');
+  const [commentText, setCommentText] = useState('');
   const currentPost = useSelector(selectCurrentPost);
   const currentPostStatus = useSelector(selectCurrentPostStatus);
+  const user = useSelector(selectUser);
+  const [unsplashImages, setUnsplashImages] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUnsplashImages = async () => {
+      try {
+        const result = await unsplash.search.getPhotos({
+          query: currentPost.title,
+          page: 1,
+          perPage: 5
+        });
+        if (result.type === 'success') {
+          const imageUrls = result.response.results.map((photo) => photo.urls.regular);
+          setUnsplashImages(imageUrls);
+        }
+      } catch (error) {
+        console.error('Error fetching Unsplash images:', error);
+      }
+    };
+
+    if (currentPost?.title) {
+      fetchUnsplashImages();
+    }
+  }, [currentPost]);
+
+  const handleImageClick = (imageUrl) => {
+    setPreviewImage(imageUrl);
+  };
+
+  const closePreviewModal = () => {
+    setPreviewImage(null);
+  };
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (scrollContainer && unsplashImages.length > 0) {
+      const scrollAnimation = () => {
+        scrollContainer.scrollLeft += 1;
+        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+          scrollContainer.scrollLeft = 0;
+        }
+        requestAnimationFrame(scrollAnimation);
+      };
+      const animationId = requestAnimationFrame(scrollAnimation);
+      return () => cancelAnimationFrame(animationId);
+    }
+  }, [unsplashImages]);
 
   useEffect(() => {
     if (params.id && (!currentPost || currentPost._id !== params.id)) {
@@ -94,76 +86,79 @@ export default function PostDetailPage() {
     }
   }, [dispatch, params.id, currentPost]);
 
-  // ? generate images
-  useEffect(() => {
-    if (currentPost && currentPost.title) {
-      const newImages = imageGenerators.map((generator) => generator(currentPost.title));
-      setImages([currentPost.thumbnail, ...newImages]);
-      setMainImage(currentPost.thumbnail);
-    }
-  }, [currentPost]);
-  // ? generate images
-  const handleImageError = (index) => {
-    setImages((prev) => {
-      const newImages = [...prev];
-      newImages[index] = fallbackImages[index % fallbackImages.length];
-      return newImages;
-    });
-  };
-  // ? generate images
-  const swapImage = (index) => {
-    setMainImage(images[index]);
-    setImages((prev) => {
-      const newImages = [...prev];
-      [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
-      return newImages;
-    });
-  };
-
   if (currentPostStatus === 'loading' && !currentPost) return <Loading />;
   if (!currentPost) return <PageNotFound />;
 
-  return (
-    <main className="px-5 mt-24 py-10 md:px-10 md:py-20 xl:p-20 flex items-center justify-center">
-      <section className="lg:max-w-[950px] xl:max-w-[1200px]">
-        <div className="relative flex flex-col lg:flex-row gap-4 mb-5 lg:mb-8 border border-black rounded-2xl">
-          <motion.div className="flex-grow" layout transition={{ duration: 0.5 }}>
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={mainImage}
-                src={mainImage}
-                alt="Main"
-                className="block w-full h-[50vh] sm:h-[60vh] object-cover rounded-2xl z-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                onError={() => handleImageError(0)}
-              />
-            </AnimatePresence>
-            <div className="w-full h-[50vh] sm:h-[60vh] bg-black/20 absolute top-0 left-0 rounded-2xl z-[-1]"></div>
-          </motion.div>
-          <div className="absolute flex flex-row lg:flex-col bottom-2 right-2 gap-2 lg:top-0 lg:right-[-6.5rem]">
-            {images.slice(1).map((img, index) => (
-              <motion.img
-                key={img}
-                src={img}
-                alt={`Thumbnail ${index + 1}`}
-                className="w-24 h-24 object-cover cursor-pointer border border-black rounded-lg"
-                onClick={() => swapImage(index + 1)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onError={() => handleImageError(index + 1)}
-              />
-            ))}
-          </div>
-        </div>
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+    if (commentText.trim() && user) {
+      dispatch(
+        addCommentAsync({
+          postId: currentPost._id,
+          comment: {
+            text: commentText,
+            username: user.result.name,
+            profilePic: user.result.picture
+          }
+        })
+      ).unwrap();
+    }
+  };
 
-        <section className="p-0 sm:p-5 lg:p-10">
+  return (
+    <main className="pt-16">
+      {previewImage && <ImagePreviewModal imageUrl={previewImage} onClose={closePreviewModal} />}
+      <section>
+        <figure className="relative w-full h-[80vh] max-sm:h-[60vh]">
+          <img
+            src={currentPost.thumbnail}
+            className="h-full w-full object-cover cursor-pointer"
+            onClick={() => handleImageClick(currentPost.thumbnail)}
+          />
+          <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white"></div>
+          {unsplashImages.length > 0 ? (
+            <div
+              ref={scrollRef}
+              className="absolute md:bottom-48 max-sm:bottom-24 flex gap-2 overflow-x-hidden whitespace-nowrap w-full">
+              {[...unsplashImages, ...unsplashImages].map((image, idx) => (
+                <img
+                  key={idx}
+                  src={image}
+                  className="inline-block min-w-40 w-40 rounded-full border border-neutral-700 object-cover h-16 shadow-2xl cursor-pointer"
+                  onClick={() => handleImageClick(image)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div>Loading images...</div>
+          )}
+        </figure>
+        <section className="relative transform -translate-y-[10rem] max-sm:-translate-y-[3.5rem] lg:mx-24 md:mx-5 mx-0 lg:py-11 lg:px-10 md:p-10 sm:py-8 sm:px-5 px-5 py-8 lg:rounded-t-[3rem] md:rounded-t-[2.5rem] rounded-t-[1.5rem] bg-white border-top">
+          <div
+            className="absolute top-0 right-0 w-full h-24 z-[-1]  lg:rounded-t-[3rem] md:rounded-t-[2.5rem] rounded-t-[1.5rem]"
+            style={{ boxShadow: '0 -10px 5px  rgba(0, 0, 0, 0.2)' }}></div>
+          <Link
+            to="/"
+            className="md:mb-8 mb-5 text-base font-semibold h-10 flex gap-2 items-center border border-black bg-neutral-200 w-fit px-5 rounded-full">
+            <span className="h-10 flex items-center">
+              <svg width="55" height="12" viewBox="0 0 55 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M0.292889 7.29289C-0.0976349 7.68342 -0.0976349 8.31658 0.292889 8.70711L6.65685 15.0711C7.04737 15.4616 7.68054 15.4616 8.07106 15.0711C8.46159 14.6805 8.46159 14.0474 8.07106 13.6569L2.41421 8L8.07106 2.34315C8.46159 1.95262 8.46159 1.31946 8.07106 0.928932C7.68054 0.538408 7.04737 0.538408 6.65685 0.928932L0.292889 7.29289ZM55 7L0.999996 7V9L55 9V7Z"
+                  fill="black"
+                />
+              </svg>
+            </span>
+            GO BACK
+          </Link>
+
+          {/*//* Post Details */}
           <h1 className="text-4xl font-bold mb-4">{currentPost.title}</h1>
-          <p className="mb-2">Tags: {currentPost.tags.join(', ')}</p>
-          <p className="mb-4">{currentPost.description}</p>
-          <div className="mb-4 text-sm">
+          <p className="mb-6 text-sm uppercase font-medium">
+            <span className="font-semibold">Tags: </span>
+            {currentPost.tags.join(' \\ ')}
+          </p>
+          <p className="mb-4 text-lg">{currentPost.description}</p>
+          <div className="mb-6 text-sm">
             <p>
               Created by: <span className="font-medium">{currentPost.username || 'Anonymous'}</span>
             </p>
@@ -172,51 +167,99 @@ export default function PostDetailPage() {
             </p>
           </div>
 
-          {/* Comments */}
-          <div className="relative mt-8 w-full">
-            <h3 className="text-2xl font-bold mb-4">Comments</h3>
+          {/* //* Activities */}
+          <div className="mb-6">
+            {currentPost.activities.length > 0 && (
+              <>
+                <h3 className="text-2xl font-bold mb-2">Activities:</h3>
+                {currentPost.activities.map((activity, idx) => (
+                  <ul key={idx} className="mb-1 ml-8 list-disc ">
+                    <li>{activity}</li>
+                  </ul>
+                ))}
+              </>
+            )}
+          </div>
 
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={30}
-              breakpoints={{
-                600: {
-                  slidesPerView: 1
-                },
-                700: {
-                  slidesPerView: 2
-                },
-                1100: {
-                  slidesPerView: 3
-                }
-              }}
-              pagination={{ clickable: true }}
-              style={{
-                '--swiper-pagination-color': '#000000',
-                '--swiper-pagination-bullet-inactive-color': '#000000',
-                '--swiper-navigation-color': '#000000',
-                '--swiper-navigation-size': '1.5rem'
-              }}
-              className="max-w-[80vw] lg:max-w-[80vw] xl:max-w-[80vw]">
-              {commentsSection.map((comment, index) => (
-                <SwiperSlide key={index}>
-                  <div className="py-5 pb-14">
-                    <div className="flex items-center mb-2">
-                      <img
-                        src={comment.image}
-                        alt={comment.name}
-                        className="rounded-full mr-2 h-10 w-10 object-cover"
-                      />
-                      <div>
-                        <p className="font-medium">{comment.name}</p>
-                        <p className="text-sm text-gray-500">{comment.date}</p>
+          {/* //* Google Map Preview */}
+          {currentPost.googleMap && (
+            <div className="my-4">
+              <h3 className="text-2xl font-bold mb-4">Location:</h3>
+              <div className="border border-neutral-500 overflow-hidden rounded-2xl">
+                <iframe
+                  title="Google Map"
+                  src={currentPost.googleMap}
+                  width="100%"
+                  height="450"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+            </div>
+          )}
+
+          {/* //* Comments */}
+          <div className="relative mt-8 w-full">
+            <h3 className="text-2xl font-bold mb-4">Comments:</h3>
+            <div className="bg-neutral-200 rounded-2xl border border-neutral-500 overflow-hidden">
+              {user && (
+                <form onSubmit={handleCommentSubmit} className="relative p-1">
+                  <input
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Add a comment..."
+                    className="w-full h-12 px-5 outline-none placeholder:text-neutral-600 border border-neutral-500 rounded-[12px] bg-neutral-300"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-[10px] h-10 absolute right-[8px] top-[8px] bg-primary-400 text-white px-5 font-medium flex items-center">
+                    Submit Comment
+                  </button>
+                </form>
+              )}
+
+              <div className="w-full">
+                <Swiper
+                  modules={[Pagination]}
+                  spaceBetween={30}
+                  slidesPerView={1}
+                  breakpoints={{
+                    640: {
+                      slidesPerView: 1
+                    },
+                    768: {
+                      slidesPerView: 1
+                    }
+                  }}
+                  pagination={{ clickable: true }}
+                  style={{
+                    '--swiper-pagination-color': '#000000',
+                    '--swiper-pagination-bullet-inactive-color': '#000000',
+                    '--swiper-navigation-color': '#000000',
+                    '--swiper-navigation-size': '1.5rem'
+                  }}>
+                  {currentPost.comments.map((comment, index) => (
+                    <SwiperSlide key={index}>
+                      <div className="py-5 pb-10 mx-5">
+                        <div className="flex items-center mb-2">
+                          <img
+                            src={comment.profilePic}
+                            alt={comment.username}
+                            className="rounded-full mr-2 h-10 w-10 object-cover"
+                          />
+                          <div>
+                            <p className="font-medium">{comment.username}</p>
+                            <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        <p className="mt-2">{comment.text}</p>
                       </div>
-                    </div>
-                    <p className="mt-2">{comment.comment}</p>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            </div>
           </div>
         </section>
       </section>

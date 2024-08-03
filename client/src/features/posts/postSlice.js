@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchAllPosts, createPosts, deletePosts, updatePosts, fetchPostById } from './postAPI.js';
+import { fetchAllPosts, createPosts, deletePosts, updatePosts, fetchPostById, addComment } from './postAPI.js';
 
 const initialState = {
   posts: [],
@@ -26,6 +26,10 @@ export const deletePostsAsync = createAsyncThunk('posts/deletePosts', async (id)
 });
 export const fetchPostByIdAsync = createAsyncThunk('posts/fetchPostById', async (id) => {
   const response = await fetchPostById(id);
+  return response.data;
+});
+export const addCommentAsync = createAsyncThunk('posts/addComment', async ({ postId, comment }) => {
+  const response = await addComment(postId, comment);
   return response.data;
 });
 
@@ -74,6 +78,21 @@ export const postSlice = createSlice({
       .addCase(deletePostsAsync.fulfilled, (state, action) => {
         state.status = 'idle';
         state.posts = state.posts.filter((post) => post._id !== action.payload);
+      })
+      .addCase(addCommentAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addCommentAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        if (state.currentPost && state.currentPost._id === action.payload._id) {
+          state.currentPost = action.payload;
+        }
+        state.posts = state.posts.map((post) => (post._id === action.payload._id ? action.payload : post));
+      })
+      .addCase(addCommentAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        console.error('Add comment failed:', action.error.message);
+        console.error('Full error:', action.error);
       });
   }
 });

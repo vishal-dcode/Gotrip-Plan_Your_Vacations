@@ -1,12 +1,14 @@
 import { useState, useCallback } from 'react';
 import { AiOutlineFileAdd } from 'react-icons/ai';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { compressImage } from '../../../utils/imageCompression.js';
 import { createPostsAsync } from '../postSlice.js';
+import { selectUser } from '../../auth/authSlice.js';
 
 export default function AddPost() {
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
   const [tagInput, setTagInput] = useState('');
   const [postData, setPostData] = useState({
     username: '',
@@ -30,14 +32,39 @@ export default function AddPost() {
     setPostData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
+  // const handleSubmit = useCallback(
+  //   (e) => {
+  //     e.preventDefault();
+  //     if (!user) {
+  //       alert('You must be logged in to create a post.');
+  //       return;
+  //     }
+  //     const date = new Date();
+  //     dispatch(createPostsAsync({ ...postData, createdAt: date }));
+  //     clearForm();
+  //   },
+  //   [dispatch, postData]
+  // );
+
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
+      if (!user) {
+        alert('You must be logged in to create a post.');
+        return;
+      }
       const date = new Date();
-      dispatch(createPostsAsync({ ...postData, createdAt: date }));
+      dispatch(
+        createPostsAsync({
+          ...postData,
+          createdAt: date,
+          username: user.result.name,
+          profilePic: user.result.picture
+        })
+      );
       clearForm();
     },
-    [dispatch, postData]
+    [dispatch, postData, user]
   );
 
   const clearForm = useCallback(() => {
@@ -64,7 +91,8 @@ export default function AddPost() {
   const addTag = useCallback(() => {
     const trimmedTag = tagInput.trim();
     if (trimmedTag && !postData.tags.includes(trimmedTag) && postData.tags.length < 5) {
-      setPostData((prev) => ({ ...prev, tags: [...prev.tags, trimmedTag] }));
+      const capitalizedTag = trimmedTag.charAt(0).toUpperCase() + trimmedTag.slice(1);
+      setPostData((prev) => ({ ...prev, tags: [...prev.tags, capitalizedTag] }));
       setTagInput('');
     }
   }, [tagInput, postData.tags]);
@@ -214,8 +242,8 @@ export default function AddPost() {
           <button
             type="submit"
             disabled={!isFormValid()}
-            className={`flex-[2] ${
-              isFormValid() ? 'bg-primary-400' : 'bg-gray-400'
+            className={`flex-[2] bg-primary-400 ${
+              !isFormValid() ? 'opacity-50 cursor-not-allowed' : ''
             }  text-white rounded-2xl font-medium px-5 py-4 block w-full`}>
             SUBMIT
           </button>

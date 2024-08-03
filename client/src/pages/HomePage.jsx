@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import HeroSection from '../components/common/HeroSection.jsx';
 import Pagination from '../components/common/Pagination.jsx';
@@ -6,9 +6,38 @@ import Search from '../components/common/Search.jsx';
 import PostGrid from '../features/posts/containers/PostGrid.jsx';
 import AddPost from '../features/posts/containers/AddPost.jsx';
 import AddPostModal from '../components/modals/AddPostModal.jsx';
+import { useSelector } from 'react-redux';
+import { selectPosts } from '../features/posts/postSlice.js';
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const posts = useSelector(selectPosts);
+
+  const [filteredPosts, setFilteredPosts] = useState(posts);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  useEffect(() => {
+    setFilteredPosts(posts);
+  }, [posts]);
+
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleSearch = ({ searchTerm, selectedCountries }) => {
+    const filtered = posts.filter(
+      (post) =>
+        (searchTerm === '' || post.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedCountries.length === 0 || selectedCountries.some((country) => post.tags.includes(country)))
+    );
+    setFilteredPosts(filtered);
+    setCurrentPage(1);
+  };
 
   return (
     <main className="mt-24">
@@ -22,7 +51,7 @@ export default function HomePage() {
           {/* //! AddPost */}
           <AddPost />
         </section>
-        <section className="min-h-[100vh] flex flex-col justify-between border border-l-black max-md:border-l-0 border-y-0 border-r-0">
+        <section className="overflow-hidden min-h-[100vh] flex flex-col justify-between border border-l-black max-md:border-l-0 border-y-0 border-r-0">
           <div>
             <div className="px-5 xl:px-10 py-10 xl:pt-20 gap-2 flex items-center justify-between max-md:flex-col max-md:items-start">
               <div className="flex flex-col">
@@ -36,12 +65,16 @@ export default function HomePage() {
               </p>
             </div>
             {/* //! Search */}
-            <Search />
+            <Search onSearch={handleSearch} />
             {/* //! PostGrid */}
-            <PostGrid />
+            <PostGrid currentPosts={currentPosts} />
           </div>
           {/* //! Pagination */}
-          <Pagination />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredPosts.length / postsPerPage)}
+            onPageChange={paginate}
+          />
         </section>
       </main>
 

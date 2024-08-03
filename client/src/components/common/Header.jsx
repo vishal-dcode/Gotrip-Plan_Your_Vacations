@@ -68,7 +68,7 @@ export default function Header() {
           {user ? (
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="border h-12 w-12  border-black p-2 rounded-full overflow-hidden object-cover text-black">
+              className="border h-12 w-12 border-black rounded-full overflow-hidden object-cover text-black">
               <img src={user.result.picture || 'https://via.placeholder.com/150'} alt="Profile Pic" />
             </button>
           ) : (
@@ -90,7 +90,7 @@ export default function Header() {
             {user && (
               <>
                 <div className="text-center p-5">
-                  <p className="text-base leading-5 font-semibold">{user.result.name}</p>
+                  <p className="text-xl font-semibold">{user.result.name}</p>
                   <p className="text-sm font-normal">{user.result.email}</p>
                 </div>
 

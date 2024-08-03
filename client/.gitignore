@@ -1,6 +1,8 @@
 # Node modules
 node_modules/
 
+utility.json
+
 # Logs
 logs
 *.log

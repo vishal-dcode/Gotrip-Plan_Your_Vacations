@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseURL = 'http://localhost:5000/posts';
-// const baseURL = 'http://192.168.0.100:5000/posts';
+// const baseURL = 'http://192.168.0.105:5000/posts';
 
 export const fetchAllPosts = () => {
   return axios.get(baseURL);
@@ -22,5 +22,9 @@ export const deletePosts = (id) => {
 
 export const fetchPostById = (id) => {
   return axios.get(`${baseURL}/${id}`);
+};
+
+export const addComment = (postId, comment) => {
+  return axios.post(`${baseURL}/${postId}/comments`, comment);
 };
 
