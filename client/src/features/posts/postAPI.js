@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:5000/posts';
+const baseURL = 'https://gotrip-backend.onrender.com/posts';
+// const baseURL = 'http://localhost:5000/posts';
 // const baseURL = 'http://192.168.0.105:5000/posts';
 
 export const fetchAllPosts = () => {
