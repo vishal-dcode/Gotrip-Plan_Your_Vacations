@@ -15,6 +15,12 @@ export default function PostGrid({ currentPosts }) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
+  const [loadedImages, setLoadedImages] = useState({});
+
+  const handleImageLoad = (tripId) => {
+    setLoadedImages((prev) => ({ ...prev, [tripId]: true }));
+  };
+
   const posts = useSelector(selectPosts);
   const postStatus = useSelector(selectStatus);
 
@@ -66,10 +72,14 @@ export default function PostGrid({ currentPosts }) {
                   )}
                 </div>
                 <figure className="border border-y-black border-x-0 aspect-[6/4] overflow-hidden">
+                  {!loadedImages[trip._id] && <div className="w-full h-full bg-neutral-200 animate-pulse"></div>}
                   <img
-                    className="w-full h-full object-cover object-center"
+                    className={`w-full h-full object-cover object-center ${
+                      loadedImages[trip._id] ? 'block' : 'hidden'
+                    }`}
                     src={trip.thumbnail || 'https://via.placeholder.com/600x400'}
                     alt="Thumbnail"
+                    onLoad={() => handleImageLoad(trip._id)}
                   />
                 </figure>
                 <div className="px-4 py-5">

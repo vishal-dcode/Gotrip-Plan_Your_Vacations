@@ -32,7 +32,9 @@ export default function HomePage() {
   const handleSearch = ({ searchTerm, selectedCountries }) => {
     const filtered = posts.filter(
       (post) =>
-        (searchTerm === '' || post.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (searchTerm === '' ||
+          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
         (selectedCountries.length === 0 || selectedCountries.some((country) => post.tags.includes(country)))
     );
     setFilteredPosts(filtered);

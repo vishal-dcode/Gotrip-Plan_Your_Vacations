@@ -20,6 +20,7 @@ import { selectUser } from '../features/auth/authSlice.js';
 import Loading from '../components/common/Loading.jsx';
 import PageNotFound from './PageNotFound.jsx';
 
+// ! UNSPLASH API
 const unsplash = createApi({
   accessKey: import.meta.env.VITE_UNSPLASH_ACCESS_KEY
 });
@@ -35,6 +36,7 @@ export default function PostDetailPage() {
   const [previewImage, setPreviewImage] = useState(null);
   const scrollRef = useRef(null);
 
+  // ! UNSPLASH API
   useEffect(() => {
     const fetchUnsplashImages = async () => {
       try {
@@ -116,22 +118,24 @@ export default function PostDetailPage() {
             onClick={() => handleImageClick(currentPost.thumbnail)}
           />
           <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white"></div>
-          {unsplashImages.length > 0 ? (
-            <div
-              ref={scrollRef}
-              className="absolute md:bottom-48 max-sm:bottom-24 flex gap-2 overflow-x-hidden whitespace-nowrap w-full">
-              {[...unsplashImages, ...unsplashImages].map((image, idx) => (
-                <img
-                  key={idx}
-                  src={image}
-                  className="inline-block min-w-40 w-40 rounded-full border border-neutral-700 object-cover h-16 shadow-2xl cursor-pointer"
-                  onClick={() => handleImageClick(image)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div>Loading images...</div>
-          )}
+          <div className="relative">
+            {unsplashImages.length > 0 ? (
+              <div
+                ref={scrollRef}
+                className="absolute md:bottom-48 max-sm:bottom-24 flex gap-2 overflow-x-hidden whitespace-nowrap w-full">
+                {[...unsplashImages, ...unsplashImages].map((image, idx) => (
+                  <img
+                    key={idx}
+                    src={image}
+                    className="inline-block min-w-40 w-40 rounded-full border border-neutral-700 object-cover h-16 shadow-2xl cursor-pointer"
+                    onClick={() => handleImageClick(image)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="absolute inset-0 bg-neutral-400 animate-pulse"></div>
+            )}
+          </div>
         </figure>
         <section className="relative transform -translate-y-[10rem] max-sm:-translate-y-[3.5rem] lg:mx-24 md:mx-5 mx-0 lg:py-11 lg:px-10 md:p-10 sm:py-8 sm:px-5 px-5 py-8 lg:rounded-t-[3rem] md:rounded-t-[2.5rem] rounded-t-[1.5rem] bg-white border-top">
           <div

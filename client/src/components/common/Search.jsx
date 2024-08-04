@@ -94,17 +94,26 @@ export default function Search({ handleSearch }) {
           <div className="relative w-full">
             <label
               htmlFor="trip-name"
-              className="absolute top-[-10px] left-4 bg-black text-xs rounded-full text-white px-4 py-1">
+              className="absolute z-10 top-[-10px] left-4 bg-black text-xs rounded-full text-white px-4 py-1">
               LOCATION
             </label>
-            <input
-              type="text"
-              id="trip-location"
-              placeholder="Search for locations here ..."
-              className="border border-black rounded-2xl px-5 py-4 block w-full outline-none placeholder-neutral-500 placeholder:font-normal"
-              value={searchTerm}
-              onChange={handleSearchTermChange}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="trip-location"
+                placeholder="Search for locations or tags here ..."
+                className="border border-black rounded-2xl px-5 py-4 block w-full outline-none placeholder-neutral-500 placeholder:font-normal"
+                value={searchTerm}
+                onChange={handleSearchTermChange}
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute transform -translate-y-1/2 right-6 top-1/2 text-2xl">
+                  &#215;
+                </button>
+              )}
+            </div>
           </div>
           <button
             type="submit"
