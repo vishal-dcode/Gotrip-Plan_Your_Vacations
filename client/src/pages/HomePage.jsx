@@ -6,38 +6,28 @@ import Search from '../components/common/Search.jsx';
 import PostGrid from '../features/posts/containers/PostGrid.jsx';
 import AddPost from '../features/posts/containers/AddPost.jsx';
 import AddPostModal from '../components/modals/AddPostModal.jsx';
-import { useSelector } from 'react-redux';
-import { selectPosts } from '../features/posts/postSlice.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectPosts, fetchAllPostsAsync } from '../features/posts/postSlice.js';
 
 export default function HomePage() {
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const posts = useSelector(selectPosts);
+  const { numberOfPages } = useSelector((state) => state.posts);
 
-  const [filteredPosts, setFilteredPosts] = useState(posts);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCountries, setSelectedCountries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10;
 
   useEffect(() => {
-    setFilteredPosts(posts);
-  }, [posts]);
+    dispatch(fetchAllPostsAsync({ page: currentPage, search: searchTerm, countries: selectedCountries }));
+  }, [dispatch, currentPage, searchTerm, selectedCountries]);
 
-  // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleSearch = ({ searchTerm, selectedCountries }) => {
-    const filtered = posts.filter(
-      (post) =>
-        (searchTerm === '' ||
-          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
-        (selectedCountries.length === 0 || selectedCountries.some((country) => post.tags.includes(country)))
-    );
-    setFilteredPosts(filtered);
+    setSearchTerm(searchTerm);
+    setSelectedCountries(selectedCountries);
     setCurrentPage(1);
   };
 
@@ -69,12 +59,12 @@ export default function HomePage() {
             {/* //! Search */}
             <Search handleSearch={handleSearch} />
             {/* //! PostGrid */}
-            <PostGrid currentPosts={currentPosts} />
+            <PostGrid currentPosts={posts || []} />
           </div>
           {/* //! Pagination */}
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(filteredPosts.length / postsPerPage)}
+            totalPages={numberOfPages || 1}
             onPageChange={paginate}
           />
         </section>

@@ -4,8 +4,15 @@ const baseURL = 'https://gotrip-backend.onrender.com/posts';
 // const baseURL = 'http://localhost:5000/posts';
 // const baseURL = 'http://192.168.0.105:5000/posts';
 
-export const fetchAllPosts = () => {
-  return axios.get(baseURL);
+export const fetchAllPosts = ({ page = 1, search = '', countries = [] } = {}) => {
+  return axios.get(baseURL, {
+    params: {
+      page,
+      limit: 10,
+      search,
+      countries: countries.length > 0 ? countries.join(',') : undefined
+    }
+  });
 };
 
 export const createPosts = (newPost) => {

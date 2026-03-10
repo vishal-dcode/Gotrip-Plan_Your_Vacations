@@ -2,8 +2,39 @@ import postModel from '../models/post.js';
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await postModel.find();
-    res.status(200).json(posts);
+    const { page = 1, limit = 10, search = '', countries = '' } = req.query;
+    const query = {};
+
+    if (search || countries) {
+      const andConditions = [];
+
+      if (search) {
+        andConditions.push({
+          $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { tags: { $regex: search, $options: 'i' } }
+          ]
+        });
+      }
+
+      if (countries) {
+        const countryArray = countries.split(',');
+        const countryRegexs = countryArray.map(c => new RegExp(`^${c}$`, 'i'));
+        andConditions.push({ tags: { $in: countryRegexs } });
+      }
+
+      if (andConditions.length > 0) {
+        query.$and = andConditions;
+      }
+    }
+
+    const startIndex = (Number(page) - 1) * Number(limit);
+    const total = await postModel.countDocuments(query);
+    
+    // Fetch posts sorted backwards so newest are first
+    const posts = await postModel.find(query).sort({ _id: -1 }).limit(Number(limit)).skip(startIndex);
+    
+    res.status(200).json({ data: posts, currentPage: Number(page), numberOfPages: Math.ceil(total / Number(limit)) });
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

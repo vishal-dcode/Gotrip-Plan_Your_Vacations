@@ -4,12 +4,14 @@ import { fetchAllPosts, createPosts, deletePosts, updatePosts, fetchPostById, ad
 const initialState = {
   posts: [],
   status: 'idle',
+  numberOfPages: 0,
+  currentPage: 1,
   currentPost: null,
   currentPostStatus: 'idle'
 };
 
-export const fetchAllPostsAsync = createAsyncThunk('posts/fetchAllPosts', async () => {
-  const response = await fetchAllPosts();
+export const fetchAllPostsAsync = createAsyncThunk('posts/fetchAllPosts', async (args = {}) => {
+  const response = await fetchAllPosts(args);
   return response.data;
 });
 export const createPostsAsync = createAsyncThunk('posts/createPosts', async (newPost) => {
@@ -48,7 +50,33 @@ export const postSlice = createSlice({
       })
       .addCase(fetchAllPostsAsync.fulfilled, (state, action) => {
         state.status = 'idle';
-        state.posts = action.payload;
+        if (action.payload.data) {
+          state.posts = action.payload.data;
+          state.currentPage = action.payload.currentPage;
+          state.numberOfPages = action.payload.numberOfPages;
+        } else {
+          // Fallback if the backend hasn't been updated yet: paginate purely on client side
+          const page = action.meta.arg?.page || 1;
+          const limit = 10;
+          
+          let filtered = [...action.payload];
+          const search = action.meta.arg?.search;
+          const countries = action.meta.arg?.countries;
+
+          if (search) {
+             const lowerSearch = search.toLowerCase();
+             filtered = filtered.filter(p => p.title.toLowerCase().includes(lowerSearch) || p.tags.some(t => t.toLowerCase().includes(lowerSearch)));
+          }
+          if (countries && countries.length > 0) {
+             filtered = filtered.filter(p => countries.some(c => p.tags.includes(c)));
+          }
+
+          state.numberOfPages = Math.ceil(filtered.length / limit);
+          state.currentPage = page;
+          const startIndex = (page - 1) * limit;
+          
+          state.posts = filtered.slice(startIndex, startIndex + limit);
+        }
       })
       .addCase(createPostsAsync.pending, (state) => {
         state.status = 'loading';

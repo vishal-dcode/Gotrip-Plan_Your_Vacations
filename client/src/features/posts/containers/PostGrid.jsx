@@ -24,9 +24,7 @@ export default function PostGrid({ currentPosts }) {
   const posts = useSelector(selectPosts);
   const postStatus = useSelector(selectStatus);
 
-  useEffect(() => {
-    dispatch(fetchAllPostsAsync());
-  }, [dispatch]);
+
 
   const handleEdit = (id) => {
     setSelectedPostId(id);
